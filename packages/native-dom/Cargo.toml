@@ -22,9 +22,12 @@ autofocus = []
 blitz-dom = { workspace = true, default-features = false }
 blitz-traits = { workspace = true }
 
-# DioxusLabs dependencies
-dioxus-core = { workspace = true }
-dioxus-html = { workspace = true }
+# DioxusLabs dependencies: crates.io versions, NOT workspace path deps.
+# This package is consumed as a git dependency patching crates.io's
+# dioxus-native-dom; path deps would drag a second copy of dioxus-core
+# into the consumer's graph next to the crates.io one.
+dioxus-core = { version = "0.7.9" }
+dioxus-html = { version = "0.7.9" }
 
 # Windowing & Input
 keyboard-types = { workspace = true }
@@ -36,7 +39,7 @@ rustc-hash = { workspace = true }
 futures-util = { workspace = true }
 
 [dev-dependencies]
-dioxus = { workspace = true }
+dioxus = { version = "0.7.9" }
 
 [package.metadata.docs.rs]
 all-features = true
