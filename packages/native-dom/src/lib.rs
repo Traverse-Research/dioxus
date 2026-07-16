@@ -14,6 +14,7 @@ mod events;
 mod mutation_writer;
 pub use blitz_dom::DocumentConfig;
 pub use dioxus_document::DioxusDocument;
+pub use events::BlitzKeyboardData;
 
 use blitz_dom::{ns, LocalName, Namespace, QualName};
 type NodeId = usize;

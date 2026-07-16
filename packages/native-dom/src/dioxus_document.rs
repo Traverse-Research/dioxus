@@ -273,6 +273,11 @@ impl EventHandler for DioxusEventHandler<'_> {
             return;
         };
 
+        // Dispatch ONCE at the deepest chain node dioxus knows: dioxus-core's
+        // handle_event bubbles through the vdom ancestors internally, so
+        // dispatching again at every ancestor in the chain double-fires
+        // every ancestor listener (e.g. a global keydown handler ran twice,
+        // toggling the command palette open and instantly shut).
         for &node_id in chain {
             // Get dioxus vdom id for node
             let dioxus_id = mutr.doc.get_node(node_id).and_then(get_dioxus_id);
@@ -280,7 +285,7 @@ impl EventHandler for DioxusEventHandler<'_> {
                 continue;
             };
 
-            // Handle event in vdom
+            // Handle event in vdom (bubbles internally when event.bubbles)
             let dx_event = Event::new(event_data.clone(), event.bubbles);
             self.vdom
                 .runtime()
@@ -292,8 +297,8 @@ impl EventHandler for DioxusEventHandler<'_> {
             }
             if !dx_event.propagates() {
                 event_state.stop_propagation();
-                break;
             }
+            break;
         }
     }
 }

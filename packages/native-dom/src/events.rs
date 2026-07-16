@@ -137,7 +137,15 @@ impl HasFileData for NativeFormData {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct BlitzKeyboardData(pub(crate) BlitzKeyEvent);
+pub struct BlitzKeyboardData(pub(crate) BlitzKeyEvent);
+
+impl BlitzKeyboardData {
+    /// Whether the key targeted a focused text input (global shortcuts must
+    /// stand down while the user types).
+    pub fn target_is_text_input(&self) -> bool {
+        self.0.target_is_text_input
+    }
+}
 
 impl ModifiersInteraction for BlitzKeyboardData {
     fn modifiers(&self) -> Modifiers {
@@ -191,7 +199,7 @@ impl InteractionLocation for NativeClickData {
 
 impl InteractionElementOffset for NativeClickData {
     fn element_coordinates(&self) -> ElementPoint {
-        unimplemented!()
+        ElementPoint::new(self.0.element_x as _, self.0.element_y as _)
     }
 }
 
