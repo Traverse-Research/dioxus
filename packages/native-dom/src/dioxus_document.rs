@@ -265,6 +265,10 @@ impl EventHandler for DioxusEventHandler<'_> {
                 values: vec![],
             })),
 
+            DomEventData::Wheel(wevent) => Some(wrap_event_data(crate::events::NativeWheelData(
+                wevent.clone(),
+            ))),
+
             // TODO: Implement IME handling
             DomEventData::Ime(_) => None,
         };
