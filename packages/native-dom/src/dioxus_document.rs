@@ -269,6 +269,10 @@ impl EventHandler for DioxusEventHandler<'_> {
                 wevent.clone(),
             ))),
 
+            DomEventData::Focus | DomEventData::Blur => {
+                Some(wrap_event_data(crate::events::NativeFocusData {}))
+            }
+
             // TODO: Implement IME handling
             DomEventData::Ime(_) => None,
         };
