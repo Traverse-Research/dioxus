@@ -101,14 +101,24 @@ impl WriteMutations for MutationWriter<'_> {
     fn assign_node_id(&mut self, path: &'static [u8], id: ElementId) {
         trace!("assign_node_id path:{:?} id:{}", path, id.0);
 
+        // Resolve the path BEFORE any GC below: the stale node may sit on the
+        // writer stack or along this walk, and freeing it first made the
+        // slab lookup panic ("invalid key") during large subtree swaps.
+        let new_node = self.load_child(path);
+
         // If there is an existing node already mapped to that ID and it has no parent, then drop it
         // TODO: more automated GC/ref-counted semantics for node lifetimes
         if let Some(node_id) = self.state.try_element_to_node_id(id) {
-            self.docm.remove_node_if_unparented(node_id);
+            // Multiple element ids can transiently alias one node during a
+            // swap: never free the node being mapped or one the stack still
+            // references (later loads resolve relative to those).
+            if node_id != new_node && !self.state.stack.contains(&node_id) {
+                self.docm.remove_node_if_unparented(node_id);
+            }
         }
 
         // Map the node at specified path
-        self.set_id_mapping(self.load_child(path), id);
+        self.set_id_mapping(new_node, id);
     }
 
     fn create_placeholder(&mut self, id: ElementId) {
